@@ -1,7 +1,11 @@
-# icons_launcher:
-#   image_path: "assets/images/logo.png"
-#   platforms:
-#     android:
-#       enable: true
-#     ios:
-#       enable: true
+icons_launcher:
+  image_path: "assets/images/logo.png"
+  platforms:
+    android:
+      enable: true
+      image_path: "assets/images/logo.png"
+      notification_image: "assets/images/ic_foreground.png"
+      adaptive_background_image: "assets/images/ic_background.png"
+      adaptive_foreground_image: "assets/images/ic_foreground.png"
+    ios:
+      enable: true

@@ -27,15 +27,16 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Center(
         child: Card(
-          color: Colors.grey.shade100,
+          elevation: 0,
+          color: Colors.transparent,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
           child: Padding(
             padding: EdgeInsets.all(mq.width * .05),
             child: Image.asset(
-              'assets/images/logo.png',
-              width: mq.width * .45,
+              'assets/images/ic_foreground.png',
+              width: mq.width * 1,
             ),
           ),
         ),
