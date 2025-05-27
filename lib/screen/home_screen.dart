@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(
-                        color: Colors.white60,
+                        color: Colors.white24,
                         width: 1.0,
                       ),
                     ),
@@ -96,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
                         color: Colors.transparent,
-                        border: Border.all(color: Colors.white60),
+                        border: Border.all(color: Colors.white24),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: InkWell(
