@@ -1,8 +1,12 @@
 import 'package:attendance/helper/global.dart';
 import 'package:attendance/helper/pref.dart';
 import 'package:attendance/helper/static_data.dart';
+import 'package:attendance/helper/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+
+import 'add_service_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -44,12 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     mq = MediaQuery.sizeOf(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          appName,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
+      appBar: const CustomAppBar(title: appName),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Padding(
@@ -63,16 +62,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   controller: _searchController,
                   decoration: InputDecoration(
                     hintText: 'Search Date, Services...',
+                    hintStyle: const TextStyle(color: Colors.white24),
                     suffixIcon: const Icon(Icons.search),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                       borderSide: const BorderSide(
                         color: Colors.white24,
                         width: 1.0,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                       borderSide: const BorderSide(
                         color: primaryColor,
                         width: 1.0,
@@ -123,7 +123,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Get.to(() => const AddServiceScreen());
+        },
         shape: const CircleBorder(),
         backgroundColor: primaryColor,
         child: const Icon(Icons.add),
