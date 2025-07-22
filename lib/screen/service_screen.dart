@@ -1,9 +1,9 @@
 import 'package:attendance/helper/global.dart';
 import 'package:attendance/helper/widgets/custom_app_bar.dart';
 import 'package:attendance/helper/widgets/custom_text_field.dart';
-import 'package:attendance/screen/features/add/attendance.dart';
-import 'package:attendance/screen/features/add/information.dart';
-import 'package:attendance/screen/features/add/visitors.dart';
+import 'package:attendance/screen/features/add/add_attendance.dart';
+import 'package:attendance/screen/features/add/add_information.dart';
+import 'package:attendance/screen/features/add/add_visitors.dart';
 import 'package:flutter/material.dart';
 
 class ServiceScreen extends StatefulWidget {
@@ -17,6 +17,7 @@ class _ServiceScreenState extends State<ServiceScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController serviceController = TextEditingController();
+  final TextEditingController dateController = TextEditingController();
 
   @override
   void initState() {
@@ -42,7 +43,7 @@ class _ServiceScreenState extends State<ServiceScreen>
           child: Column(
             children: [
               Padding(
-                padding: EdgeInsets.all(mq.width * 0.07),
+                padding: EdgeInsets.symmetric(horizontal: mq.width * 0.07, vertical: mq.width * 0.05),
                 child: Column(
                   children: [
                     CustomTextField(
@@ -52,7 +53,7 @@ class _ServiceScreenState extends State<ServiceScreen>
                     ),
                     SizedBox(height: mq.width * 0.03),
                     CustomTextField(
-                      controller: serviceController,
+                      controller: dateController,
                       hintText: 'Date',
                       label: 'Date',
                     ),

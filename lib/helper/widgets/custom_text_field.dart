@@ -33,7 +33,7 @@ class CustomTextField extends StatelessWidget {
         ),
         SizedBox(height: size.width * 0.02),
         SizedBox(
-          height: 40,
+          height: 35,
           child: TextField(
             enabled: isEnabled,
             controller: controller,
@@ -46,19 +46,19 @@ class CustomTextField extends StatelessWidget {
               hintStyle: TextStyle(
                   color: Colors.white30, fontSize: size.width * 0.035),
               disabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(5),
                 borderSide: const BorderSide(color: Colors.white30, width: 1.0),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(5),
                 borderSide: const BorderSide(color: Colors.white30, width: 1.0),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(5),
                 borderSide: const BorderSide(color: primaryColor, width: 1.0),
               ),
               contentPadding:
-                  const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
             ),
           ),
         ),
