@@ -2,20 +2,21 @@ import 'package:attendance/helper/global.dart';
 import 'package:attendance/helper/pref.dart';
 import 'package:attendance/helper/static_data.dart';
 import 'package:attendance/helper/widgets/custom_app_bar.dart';
+import 'package:attendance/helper/widgets/custom_sidebar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'service_screen.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class AttendanceScreen extends StatefulWidget {
+  const AttendanceScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<AttendanceScreen> createState() => _AttendanceScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _AttendanceScreenState extends State<AttendanceScreen> {
   late List<Map<String, String>> attendanceList;
   late List<Map<String, String>> filteredList;
   final TextEditingController _searchController = TextEditingController();
@@ -49,6 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: const CustomAppBar(title: appName),
+      drawer: const CustomSidebar(),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Padding(

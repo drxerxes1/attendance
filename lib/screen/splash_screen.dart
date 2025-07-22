@@ -1,5 +1,5 @@
 import 'package:attendance/helper/global.dart';
-import 'package:attendance/screen/home_screen.dart';
+import 'package:attendance/screen/attendance_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -16,7 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     Future.delayed(const Duration(seconds: 2), () {
-      Get.off(() => const HomeScreen());
+      Get.off(() => const AttendanceScreen());
     });
   }
 

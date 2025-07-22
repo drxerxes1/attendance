@@ -18,6 +18,8 @@ dependencies:
   get: ^4.7.2
   firebase_core: 
   cloud_firestore: 
+  intl:
+  flutter_slidable: 
 
 dev_dependencies:
   flutter_test:

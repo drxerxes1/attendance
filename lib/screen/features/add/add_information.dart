@@ -140,8 +140,9 @@ class _AddInformationState extends State<AddInformation> {
                       hintStyle: TextStyle(
                           color: Colors.white30, fontSize: mq.width * 0.035),
                       border: InputBorder.none,
+                      isCollapsed: true,
                       contentPadding:
-                          const EdgeInsets.symmetric(vertical: 12.5),
+                          const EdgeInsets.symmetric(vertical: 10),
                     ),
                     style: TextStyle(
                         color: Colors.white, fontSize: mq.width * 0.035),

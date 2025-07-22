@@ -9,11 +9,11 @@ class FirestoreService {
 
   // ----------------- MEMBER METHODS -----------------
 
-  Future<void> addMember(String id, String name, DateTime birthday) async {
-    await membersRef.doc(id).set({
-      'id': id,
+  Future<void> addMember(String name, DateTime birthday) async {
+    await membersRef.add({
       'name': name,
       'birthday': birthday.toIso8601String(),
+      'createdAt': FieldValue.serverTimestamp(),
     });
   }
 
@@ -21,8 +21,12 @@ class FirestoreService {
     return await membersRef.doc(id).get();
   }
 
-  Future<void> updateMember(String id, Map<String, dynamic> data) async {
-    await membersRef.doc(id).update(data);
+  Future<void> updateMember(String id, String name, DateTime birthday) async {
+    await membersRef.doc(id).update({
+      'name': name,
+      'birthday': birthday,
+      'updatedAt': Timestamp.now(),
+    });
   }
 
   Future<void> deleteMember(String id) async {
@@ -30,15 +34,22 @@ class FirestoreService {
   }
 
   Stream<List<Map<String, dynamic>>> getAllMembers() {
-    return membersRef.snapshots().map((snapshot) =>
-        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList());
+    return membersRef
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              data['id'] = doc.id;
+              return data;
+            }).toList());
   }
 
   // ----------------- ATTENDANCE METHODS -----------------
 
   Future<void> addAttendance(Map<String, dynamic> attendanceData) async {
-    final id = attendanceData['id'];
-    await attendanceRef.doc(id).set(attendanceData);
+    final docRef = attendanceRef.doc(); // Automatically generates a unique ID
+    attendanceData['id'] = docRef.id; // Store the generated ID
+    await docRef.set(attendanceData);
   }
 
   Future<DocumentSnapshot> getAttendance(String id) async {
@@ -54,7 +65,10 @@ class FirestoreService {
   }
 
   Stream<List<Map<String, dynamic>>> getAllAttendance() {
-    return attendanceRef.snapshots().map((snapshot) =>
-        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList());
+    return attendanceRef.snapshots().map(
+          (snapshot) => snapshot.docs
+              .map((doc) => doc.data() as Map<String, dynamic>)
+              .toList(),
+        );
   }
 }
