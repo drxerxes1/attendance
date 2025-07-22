@@ -1,16 +1,19 @@
 import 'package:attendance/helper/global.dart';
 import 'package:attendance/helper/widgets/custom_app_bar.dart';
 import 'package:attendance/helper/widgets/custom_text_field.dart';
+import 'package:attendance/screen/features/add/attendance.dart';
+import 'package:attendance/screen/features/add/information.dart';
+import 'package:attendance/screen/features/add/visitors.dart';
 import 'package:flutter/material.dart';
 
-class AddServiceScreen extends StatefulWidget {
-  const AddServiceScreen({super.key});
+class ServiceScreen extends StatefulWidget {
+  const ServiceScreen({super.key});
 
   @override
-  State<AddServiceScreen> createState() => _AddServiceScreenState();
+  State<ServiceScreen> createState() => _ServiceScreenState();
 }
 
-class _AddServiceScreenState extends State<AddServiceScreen>
+class _ServiceScreenState extends State<ServiceScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController serviceController = TextEditingController();
@@ -57,17 +60,19 @@ class _AddServiceScreenState extends State<AddServiceScreen>
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
-              // Tab bar with rounded indicator
               Container(
+                height: mq.width * 0.1,
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: Colors.grey[900],
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: TabBar(
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
                   controller: _tabController,
                   indicator: BoxDecoration(
                     color: Colors.black,
@@ -83,14 +88,13 @@ class _AddServiceScreenState extends State<AddServiceScreen>
                 ),
               ),
 
-              // Tab content (optional for now)
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
                   children: const [
-                    Center(child: Text("Information Content")),
-                    Center(child: Text("Attendance Content")),
-                    Center(child: Text("Visitors Content")),
+                    AddInformation(),
+                    AddAttendance(),
+                    AddVisitors(),
                   ],
                 ),
               ),

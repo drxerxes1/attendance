@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import 'service_screen/add_information.dart';
+import 'service_screen/service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -124,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Get.to(() => const AddServiceScreen());
+          Get.to(() => const ServiceScreen());
         },
         shape: const CircleBorder(),
         backgroundColor: primaryColor,
