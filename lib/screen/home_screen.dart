@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import 'add_service_screen.dart';
+import 'service_screen/add_information.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
