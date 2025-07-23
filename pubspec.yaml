@@ -20,6 +20,7 @@ dependencies:
   cloud_firestore: 
   intl:
   flutter_slidable: 
+  flutter_dotenv: 
 
 dev_dependencies:
   flutter_test:
