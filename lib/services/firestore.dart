@@ -10,9 +10,10 @@ class FirestoreService {
   // ----------------- MEMBER METHODS -----------------
 
   Future<void> addMember(String name, DateTime birthday) async {
+    final formattedDate = birthday.toIso8601String().split('T').first;
     await membersRef.add({
       'name': name,
-      'birthday': birthday.toIso8601String(),
+      'birthday': formattedDate,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
@@ -22,9 +23,10 @@ class FirestoreService {
   }
 
   Future<void> updateMember(String id, String name, DateTime birthday) async {
+    final formattedDate = birthday.toIso8601String().split('T').first;
     await membersRef.doc(id).update({
       'name': name,
-      'birthday': birthday,
+      'birthday': formattedDate,
       'updatedAt': Timestamp.now(),
     });
   }

@@ -1,4 +1,4 @@
-import 'package:attendance/firebase_options.dart';
+import 'package:attendance/services/firebase_options.dart';
 import 'package:attendance/helper/global.dart';
 import 'package:attendance/helper/pref.dart';
 import 'package:attendance/screen/splash_screen.dart';
