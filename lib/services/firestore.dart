@@ -1,3 +1,6 @@
+// ignore_for_file: avoid_print
+
+import 'package:attendance/model/member.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreService {
@@ -9,41 +12,47 @@ class FirestoreService {
 
   // ----------------- MEMBER METHODS -----------------
 
-  Future<void> addMember(String name, DateTime birthday) async {
-    final formattedDate = birthday.toIso8601String().split('T').first;
-    await membersRef.add({
-      'name': name,
-      'birthday': formattedDate,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+  Future<void> addMember(Member member) async {
+    try {
+      await membersRef.add(member.toMap());
+    } catch (e) {
+      print('Error adding member: $e');
+      rethrow;
+    }
   }
 
-  Future<DocumentSnapshot> getMember(String id) async {
-    return await membersRef.doc(id).get();
+  Future<Member> getMember(String id) async {
+    try {
+      final doc = await membersRef.doc(id).get();
+      return Member.fromDocument(doc);
+    } catch (e) {
+      print('Error fetching member: $e');
+      rethrow;
+    }
   }
 
-  Future<void> updateMember(String id, String name, DateTime birthday) async {
-    final formattedDate = birthday.toIso8601String().split('T').first;
-    await membersRef.doc(id).update({
-      'name': name,
-      'birthday': formattedDate,
-      'updatedAt': Timestamp.now(),
-    });
+  Future<void> updateMember(Member member) async {
+    try {
+      await membersRef.doc(member.id).update(member.toUpdateMap());
+    } catch (e) {
+      print('Error updating member: $e');
+      rethrow;
+    }
   }
 
   Future<void> deleteMember(String id) async {
-    await membersRef.doc(id).delete();
+    try {
+      await membersRef.doc(id).delete();
+    } catch (e) {
+      print('Error deleting member: $e');
+      rethrow;
+    }
   }
 
-  Stream<List<Map<String, dynamic>>> getAllMembers() {
-    return membersRef
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) {
-              final data = doc.data() as Map<String, dynamic>;
-              data['id'] = doc.id;
-              return data;
-            }).toList());
+  Stream<List<Member>> getAllMembers() {
+    return membersRef.orderBy('createdAt', descending: true).snapshots().map(
+        (snapshot) =>
+            snapshot.docs.map((doc) => Member.fromDocument(doc)).toList());
   }
 
   // ----------------- ATTENDANCE METHODS -----------------

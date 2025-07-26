@@ -1,13 +1,15 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:attendance/helper/global.dart';
+import 'package:attendance/helper/validation/member_validation.dart';
 import 'package:attendance/helper/widgets/custom_alert_dialog.dart';
 import 'package:attendance/helper/widgets/custom_app_bar.dart';
 import 'package:attendance/helper/widgets/custom_datepicker.dart';
+import 'package:attendance/helper/widgets/custom_dialog.dart';
 import 'package:attendance/helper/widgets/custom_slidable_action.dart';
 import 'package:attendance/helper/widgets/custom_text_field.dart';
+import 'package:attendance/model/member.dart';
 import 'package:attendance/services/firestore.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
@@ -28,22 +30,13 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
   final TextEditingController birthdayController = TextEditingController();
 
   // show member modal
-  void showMemberModal({Map<String, dynamic>? member, String? docId}) {
+  void showMemberModal({Member? member}) {
     final isEdit = member != null;
 
     if (isEdit) {
-      nameController.text = member['name'] ?? '';
-      final birthdayRaw = member['birthday'];
-      if (birthdayRaw != null) {
-        try {
-          final date = (birthdayRaw is Timestamp)
-              ? birthdayRaw.toDate()
-              : DateTime.parse(birthdayRaw.toString());
-          birthdayController.text = DateFormat('MM-dd-yyyy').format(date);
-        } catch (_) {
-          birthdayController.clear();
-        }
-      }
+      nameController.text = member.name;
+      birthdayController.text =
+          DateFormat('MM-dd-yyyy').format(member.birthday);
     } else {
       nameController.clear();
       birthdayController.clear();
@@ -70,19 +63,57 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
         ),
         actions: [
           ElevatedButton(
-            onPressed: () {
-              final birthday =
-                  DateFormat('MM-dd-yyyy').parse(birthdayController.text);
+            onPressed: () async {
+              final name = nameController.text.trim();
+              final birthdayText = birthdayController.text.trim();
 
-              if (isEdit && docId != null) {
-                firestoreService.updateMember(
-                    docId, nameController.text, birthday);
+              final nameValidation = MemberValidator.validateName(name);
+              if (!nameValidation.isValid) {
+                showError(nameValidation.error!);
+                return;
+              }
+
+              final birthdayValidation =
+                  MemberValidator.validateBirthday(birthdayText);
+              if (!birthdayValidation.isValid) {
+                showError(birthdayValidation.error!);
+                return;
+              }
+
+              final duplicateCheck = await MemberValidator.checkDuplicateName(
+                name: name,
+                currentId: isEdit ? member.id : null,
+              );
+
+              if (!mounted) return;
+
+              if (!duplicateCheck.isValid) {
+                showError(duplicateCheck.error!);
+                return;
+              }
+
+              final birthday =
+                  DateFormat('MM-dd-yyyy').parseStrict(birthdayText);
+
+              if (isEdit) {
+                firestoreService.updateMember(Member(
+                  id: member.id,
+                  name: name,
+                  birthday: birthday,
+                ));
               } else {
-                firestoreService.addMember(nameController.text, birthday);
+                firestoreService.addMember(Member(
+                  id: '',
+                  name: name,
+                  birthday: birthday,
+                ));
               }
 
               nameController.clear();
               birthdayController.clear();
+
+              if (!mounted) return;
+              // ignore: use_build_context_synchronously
               Navigator.pop(context);
             },
             child: Text(isEdit ? 'Update' : 'Add'),
@@ -90,6 +121,10 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
         ],
       ),
     );
+  }
+
+  void showError(String message) {
+    CustomDialog.error(message);
   }
 
   @override
@@ -102,7 +137,7 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
         backgroundColor: primaryColor,
         child: const Icon(Icons.add),
       ),
-      body: StreamBuilder<List<Map<String, dynamic>>>(
+      body: StreamBuilder<List<Member>>(
         stream: firestoreService.getAllMembers(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -121,26 +156,14 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
               itemCount: members.length,
               itemBuilder: (context, index) {
                 final member = members[index];
-                final name = member['name'] ?? '';
-                final birthdayRaw = member['birthday'];
 
-                // Format birthday
-                String birthday = '';
-                if (birthdayRaw != null) {
-                  try {
-                    final date = (birthdayRaw is Timestamp)
-                        ? birthdayRaw.toDate()
-                        : DateTime.parse(birthdayRaw.toString());
-                    birthday = DateFormat('MM-dd-yyyy').format(date);
-                  } catch (_) {
-                    birthday = 'Invalid date';
-                  }
-                }
+                final birthday =
+                    DateFormat('MM-dd-yyyy').format(member.birthday);
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Slidable(
-                    key: ValueKey(member['id']),
+                    key: ValueKey(member.id),
                     startActionPane: ActionPane(
                       motion: const DrawerMotion(),
                       extentRatio: 0.25,
@@ -157,15 +180,9 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
                                 onConfirm: () {
                                   WidgetsBinding.instance
                                       .addPostFrameCallback((_) {
-                                    firestoreService.deleteMember(member['id']);
-
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text("Member deleted.",
-                                            style:
-                                                TextStyle(color: Colors.white)),
-                                        backgroundColor: Colors.red,
-                                      ),
+                                    firestoreService.deleteMember(member.id);
+                                    CustomDialog.success(
+                                      'Member deleted successfully',
                                     );
                                   });
                                 },
@@ -185,8 +202,7 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
                       children: [
                         CustomSlidableActionWidget(
                           onPressed: (context) {
-                            showMemberModal(
-                                member: member, docId: member['id']);
+                            showMemberModal(member: member);
                           },
                           backgroundColor: Colors.blue.withOpacity(0.15),
                           foregroundColor: Colors.blue,
@@ -203,7 +219,7 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
                       ),
                       child: ListTile(
                         title: Text(
-                          name,
+                          member.name,
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
