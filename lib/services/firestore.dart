@@ -57,9 +57,64 @@ class FirestoreService {
 
   // ----------------- ATTENDANCE METHODS -----------------
 
-  Future<void> addAttendance(Map<String, dynamic> attendanceData) async {
-    final docRef = attendanceRef.doc(); // Automatically generates a unique ID
-    attendanceData['id'] = docRef.id; // Store the generated ID
+  Future<void> addAttendance({
+    required DateTime date,
+    required Map<String, double> amount,
+    required Member preacher,
+    required String sermonTitle,
+    required String sermonScripture,
+    required Member worshipLeader,
+    required Member songLeader,
+    required List<String> songs,
+    required List<Member> attendees,
+    required List<Member> birthdays,
+    required List<Map<String, dynamic>> visitors,
+  }) async {
+    final docRef = attendanceRef.doc();
+
+    final attendanceData = {
+      'id': docRef.id,
+      'date': date.toIso8601String(),
+      'amount': amount,
+      'sermon': {
+        'preacher': {
+          'id': preacher.id,
+          'name': preacher.name,
+        },
+        'title': sermonTitle,
+        'scripture': sermonScripture,
+      },
+      'worship leader': {
+        'id': worshipLeader.id,
+        'name': worshipLeader.name,
+      },
+      'song leader': {
+        'id': songLeader.id,
+        'name': songLeader.name,
+      },
+      'songs': songs,
+      'attendance': attendees
+          .map((member) => {
+                'id': member.id,
+                'name': member.name,
+              })
+          .toList(),
+      'birthdays': birthdays
+          .map((member) => {
+                'id': member.id,
+                'name': member.name,
+                'birthday': member.birthday.toIso8601String(),
+              })
+          .toList(),
+      'visitors': visitors.map((visitor) {
+        return {
+          'name': visitor['name'],
+          'birthday': (visitor['birthday'] as DateTime).toIso8601String(),
+        };
+      }).toList(),
+      'createdAt': FieldValue.serverTimestamp(),
+    };
+
     await docRef.set(attendanceData);
   }
 
@@ -68,6 +123,7 @@ class FirestoreService {
   }
 
   Future<void> updateAttendance(String id, Map<String, dynamic> data) async {
+    data['updatedAt'] = FieldValue.serverTimestamp();
     await attendanceRef.doc(id).update(data);
   }
 
