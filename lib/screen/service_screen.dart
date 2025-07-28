@@ -1,4 +1,3 @@
-import 'package:attendance/helper/global.dart';
 import 'package:attendance/helper/widgets/custom_app_bar.dart';
 import 'package:attendance/helper/widgets/custom_text_field.dart';
 import 'package:attendance/screen/features/add/add_attendance.dart';
@@ -34,6 +33,7 @@ class _ServiceScreenState extends State<ServiceScreen>
 
   @override
   Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context).size;
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -43,7 +43,8 @@ class _ServiceScreenState extends State<ServiceScreen>
           child: Column(
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: mq.width * 0.07, vertical: mq.width * 0.05),
+                padding: EdgeInsets.symmetric(
+                    horizontal: mq.width * 0.07, vertical: mq.width * 0.05),
                 child: Column(
                   children: [
                     CustomTextField(
@@ -60,9 +61,7 @@ class _ServiceScreenState extends State<ServiceScreen>
                   ],
                 ),
               ),
-
               const SizedBox(height: 10),
-
               Container(
                 height: mq.width * 0.1,
                 margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -88,7 +87,6 @@ class _ServiceScreenState extends State<ServiceScreen>
                   ],
                 ),
               ),
-
               Expanded(
                 child: TabBarView(
                   controller: _tabController,

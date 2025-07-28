@@ -1,4 +1,3 @@
-import 'package:attendance/helper/global.dart';
 import 'package:attendance/helper/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 
@@ -37,6 +36,7 @@ class _AddInformationState extends State<AddInformation> {
 
   @override
   Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context).size;
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: mq.width * 0.07),
       child: Column(
@@ -141,8 +141,7 @@ class _AddInformationState extends State<AddInformation> {
                           color: Colors.white30, fontSize: mq.width * 0.035),
                       border: InputBorder.none,
                       isCollapsed: true,
-                      contentPadding:
-                          const EdgeInsets.symmetric(vertical: 10),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
                     ),
                     style: TextStyle(
                         color: Colors.white, fontSize: mq.width * 0.035),
@@ -150,7 +149,7 @@ class _AddInformationState extends State<AddInformation> {
                 ),
                 IconButton(
                   icon: const Icon(
-                    Icons.delete,
+                    Icons.clear,
                     color: Colors.red,
                     size: 20,
                   ),

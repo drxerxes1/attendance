@@ -16,6 +16,7 @@ class _AddAttendanceState extends State<AddAttendance> {
 
   @override
   Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context).size;
     return StreamBuilder<List<Member>>(
       stream: firestoreService.getAllMembers(),
       builder: (context, snapshot) {
