@@ -3,19 +3,24 @@ import 'package:attendance/model/member.dart';
 import 'package:attendance/services/firestore.dart';
 import 'package:flutter/material.dart';
 
-class AddAttendance extends StatefulWidget {
-  const AddAttendance({super.key});
+class AttendanceTab extends StatefulWidget {
+  const AttendanceTab({super.key});
 
   @override
-  State<AddAttendance> createState() => _AddAttendanceState();
+  State<AttendanceTab> createState() => _AttendanceTabState();
 }
 
-class _AddAttendanceState extends State<AddAttendance> {
+class _AttendanceTabState extends State<AttendanceTab>
+    with AutomaticKeepAliveClientMixin {
   final FirestoreService firestoreService = FirestoreService();
   final Set<String> checkedMemberIds = {};
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final mq = MediaQuery.of(context).size;
     return StreamBuilder<List<Member>>(
       stream: firestoreService.getAllMembers(),

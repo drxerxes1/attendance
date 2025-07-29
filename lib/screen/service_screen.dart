@@ -1,8 +1,8 @@
 import 'package:attendance/helper/widgets/custom_app_bar.dart';
 import 'package:attendance/helper/widgets/custom_text_field.dart';
-import 'package:attendance/screen/features/add/add_attendance.dart';
-import 'package:attendance/screen/features/add/add_information.dart';
-import 'package:attendance/screen/features/add/add_visitors.dart';
+import 'package:attendance/screen/features/tab/attendance_tab.dart';
+import 'package:attendance/screen/features/tab/information_tab.dart';
+import 'package:attendance/screen/features/tab/visitors_tab.dart';
 import 'package:flutter/material.dart';
 
 class ServiceScreen extends StatefulWidget {
@@ -91,9 +91,9 @@ class _ServiceScreenState extends State<ServiceScreen>
                 child: TabBarView(
                   controller: _tabController,
                   children: const [
-                    AddInformation(),
-                    AddAttendance(),
-                    AddVisitors(),
+                    InformationTab(),
+                    AttendanceTab(),
+                    VisitorTab(),
                   ],
                 ),
               ),

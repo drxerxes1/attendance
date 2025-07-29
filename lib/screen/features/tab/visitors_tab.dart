@@ -1,14 +1,15 @@
 import 'package:attendance/helper/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
 
-class AddVisitors extends StatefulWidget {
-  const AddVisitors({super.key});
+class VisitorTab extends StatefulWidget {
+  const VisitorTab({super.key});
 
   @override
-  State<AddVisitors> createState() => _AddVisitorsState();
+  State<VisitorTab> createState() => _VisitorTabState();
 }
 
-class _AddVisitorsState extends State<AddVisitors> {
+class _VisitorTabState extends State<VisitorTab>
+    with AutomaticKeepAliveClientMixin {
   final List<String> visitors = [];
   final TextEditingController visitorController = TextEditingController();
 
@@ -36,7 +37,11 @@ class _AddVisitorsState extends State<AddVisitors> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final mq = MediaQuery.of(context).size;
 
     return SingleChildScrollView(

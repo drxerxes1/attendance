@@ -1,14 +1,15 @@
 import 'package:attendance/helper/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 
-class AddInformation extends StatefulWidget {
-  const AddInformation({super.key});
+class InformationTab extends StatefulWidget {
+  const InformationTab({super.key});
 
   @override
-  State<AddInformation> createState() => _AddInformationState();
+  State<InformationTab> createState() => _InformationTabState();
 }
 
-class _AddInformationState extends State<AddInformation> {
+class _InformationTabState extends State<InformationTab>
+    with AutomaticKeepAliveClientMixin {
   final TextEditingController preacherController = TextEditingController();
   final TextEditingController titleController = TextEditingController();
   final TextEditingController scriptureController = TextEditingController();
@@ -35,7 +36,11 @@ class _AddInformationState extends State<AddInformation> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final mq = MediaQuery.of(context).size;
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: mq.width * 0.07),
