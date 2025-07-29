@@ -35,6 +35,7 @@ class CustomTextField extends StatelessWidget {
         SizedBox(
           height: 35,
           child: TextField(
+            textCapitalization: TextCapitalization.words,
             enabled: isEnabled,
             controller: controller,
             obscureText: obscureText,

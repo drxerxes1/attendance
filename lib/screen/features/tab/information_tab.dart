@@ -1,4 +1,5 @@
 import 'package:attendance/helper/widgets/custom_dialog.dart';
+import 'package:attendance/helper/widgets/custom_autocomplete_textfield.dart';
 import 'package:attendance/helper/widgets/custom_text_field.dart';
 import 'package:attendance/screen/controllers/service_controller.dart';
 import 'package:flutter/material.dart';
@@ -27,10 +28,15 @@ class InformationTab extends StatelessWidget {
           const Text('Sermon',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           SizedBox(height: mq.width * 0.02),
-          CustomTextField(
+          CustomAutocompleteTextfield(
             controller: controller.preacherController,
-            hintText: 'Preacher',
-            label: 'Preacher',
+            hintText: "Preacher",
+            label: "Preacher",
+            collection: "members",
+            field: "name",
+            onSelectedId: (id) {
+              controller.selectedPreacherId.value = id ?? "NonMember";
+            },
           ),
           SizedBox(height: mq.width * 0.02),
           CustomTextField(
@@ -50,16 +56,26 @@ class InformationTab extends StatelessWidget {
           const Text('Praise and Worship',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           SizedBox(height: mq.width * 0.02),
-          CustomTextField(
+          CustomAutocompleteTextfield(
             controller: controller.worshipLeaderController,
-            hintText: 'Worship Leader',
-            label: 'Worship Leader',
+            hintText: "Worship Leader",
+            label: "Worship Leader",
+            collection: "members",
+            field: "name",
+            onSelectedId: (id) {
+              controller.selectedWorshipLeaderId.value = id ?? "NonMember";
+            },
           ),
           SizedBox(height: mq.width * 0.02),
-          CustomTextField(
+          CustomAutocompleteTextfield(
             controller: controller.songLeaderController,
-            hintText: 'Song Leader',
-            label: 'Song Leader',
+            hintText: "Song Leader",
+            label: "Song Leader",
+            collection: "members",
+            field: "name",
+            onSelectedId: (id) {
+              controller.selectedSongLeaderId.value = id ?? "NonMember";
+            },
           ),
           SizedBox(height: mq.width * 0.02),
           Text('Songs: ', style: TextStyle(fontSize: mq.width * 0.035)),
@@ -113,6 +129,7 @@ class InformationTab extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextField(
+                    textCapitalization: TextCapitalization.words,
                     controller: songController,
                     decoration: InputDecoration(
                       hintText: 'Song Title Here',

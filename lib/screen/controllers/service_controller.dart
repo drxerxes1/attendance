@@ -3,25 +3,28 @@ import 'package:get/get.dart';
 
 class ServiceController extends GetxController {
   // Attendance
-  final checkedMemberIds = <String>{}.obs;
+  final checkedMembers = <String, String>{}.obs;
 
-  void toggleMember(String id) {
-    if (checkedMemberIds.contains(id)) {
-      checkedMemberIds.remove(id);
+  void toggleMember(String id, String name) {
+    if (checkedMembers.containsKey(id)) {
+      checkedMembers.remove(id);
     } else {
-      checkedMemberIds.add(id);
+      checkedMembers[id] = name;
     }
   }
 
-  void setMember(String id, bool checked) {
+  void setMember(String id, String name, bool checked) {
     if (checked) {
-      checkedMemberIds.add(id);
+      checkedMembers[id] = name;
     } else {
-      checkedMemberIds.remove(id);
+      checkedMembers.remove(id);
     }
   }
 
   // Information Tab
+  final selectedPreacherId = RxString('NonMember');
+  final selectedSongLeaderId = RxString('NonMember');
+  final selectedWorshipLeaderId = RxString('NonMember');
   final preacherController = TextEditingController();
   final titleController = TextEditingController();
   final scriptureController = TextEditingController();

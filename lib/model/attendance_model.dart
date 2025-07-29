@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Attendance {
   final String id;
+  final String serviceName;
   final DateTime date;
   final Sermon sermon;
   final Attendees worshipLeader;
@@ -14,6 +15,7 @@ class Attendance {
 
   Attendance({
     required this.id,
+    required this.serviceName,
     required this.date,
     required this.sermon,
     required this.worshipLeader,
@@ -36,6 +38,7 @@ class Attendance {
 
     return Attendance(
       id: doc.id,
+      serviceName: data['service name'],
       date: parseDate(data['date']),
       sermon: Sermon.fromMap(data['sermon']),
       worshipLeader: Attendees.fromMap(data['worship leader']),
@@ -58,6 +61,7 @@ class Attendance {
 
   Map<String, dynamic> toMap({bool includeTimestamps = true}) {
     final map = {
+      'service name': serviceName,
       'date': date.toIso8601String(),
       'sermon': sermon.toMap(),
       'worship leader': worshipLeader.toMap(),
@@ -76,6 +80,7 @@ class Attendance {
 
   Map<String, dynamic> toUpdateMap() {
     return {
+      'service name': serviceName,
       'date': date.toIso8601String(),
       'sermon': sermon.toMap(),
       'worship leader': worshipLeader.toMap(),
@@ -89,13 +94,11 @@ class Attendance {
 }
 
 class Sermon {
-  final String id;
   final Attendees preacher;
   final String title;
   final String scripture;
 
   Sermon({
-    required this.id,
     required this.preacher,
     required this.title,
     required this.scripture,
@@ -103,7 +106,6 @@ class Sermon {
 
   factory Sermon.fromMap(Map<String, dynamic> data) {
     return Sermon(
-      id: data['id'] ?? '',
       preacher: Attendees.fromMap(data['preacher']),
       title: data['title'] ?? '',
       scripture: data['scripture'] ?? '',
@@ -112,7 +114,6 @@ class Sermon {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'preacher': preacher.toMap(),
       'title': title,
       'scripture': scripture,
@@ -128,8 +129,8 @@ class Attendees {
 
   factory Attendees.fromMap(Map<String, dynamic> data) {
     return Attendees(
-      id: data['id'] ?? data['member_id'] ?? '',
-      name: data['name'] ?? '',
+      id: data['id'],
+      name: data['name'],
     );
   }
 

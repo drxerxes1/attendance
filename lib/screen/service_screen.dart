@@ -1,11 +1,18 @@
+import 'package:attendance/helper/global.dart';
+import 'package:attendance/helper/validation/member_validation.dart';
 import 'package:attendance/helper/widgets/custom_app_bar.dart';
+import 'package:attendance/helper/widgets/custom_datepicker.dart';
+import 'package:attendance/helper/widgets/custom_dialog.dart';
 import 'package:attendance/helper/widgets/custom_text_field.dart';
+import 'package:attendance/model/attendance_model.dart';
 import 'package:attendance/screen/controllers/service_controller.dart';
 import 'package:attendance/screen/features/tab/attendance_tab.dart';
 import 'package:attendance/screen/features/tab/information_tab.dart';
 import 'package:attendance/screen/features/tab/visitors_tab.dart';
+import 'package:attendance/services/firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class ServiceScreen extends StatefulWidget {
   const ServiceScreen({super.key});
@@ -16,6 +23,8 @@ class ServiceScreen extends StatefulWidget {
 
 class _ServiceScreenState extends State<ServiceScreen>
     with TickerProviderStateMixin {
+  final FirestoreService firestoreService = FirestoreService();
+
   late TabController _tabController;
   final TextEditingController serviceController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
@@ -56,10 +65,10 @@ class _ServiceScreenState extends State<ServiceScreen>
                       label: 'Service',
                     ),
                     SizedBox(height: mq.width * 0.03),
-                    CustomTextField(
+                    CustomDatePickerTextField(
                       controller: dateController,
-                      hintText: 'Date',
                       label: 'Date',
+                      hintText: 'MM-DD-YYYY',
                     ),
                   ],
                 ),
@@ -103,65 +112,63 @@ class _ServiceScreenState extends State<ServiceScreen>
             ],
           ),
         ),
-        // floatingActionButton: FloatingActionButton(
-        //   onPressed: () async {
-        //     final controller = Get.find<ServiceController>();
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            final controller = Get.find<ServiceController>();
 
-        //     // Validate basic required fields
-        //     if (controller.preacherController.text.isEmpty ||
-        //         controller.titleController.text.isEmpty ||
-        //         controller.scriptureController.text.isEmpty ||
-        //         controller.worshipLeaderController.text.isEmpty ||
-        //         controller.songLeaderController.text.isEmpty ||
-        //         controller.checkedMemberIds.isEmpty) {
-        //       Get.snackbar(
-        //           'Error', 'Please fill all required fields and attendance',
-        //           backgroundColor: Colors.red, colorText: Colors.white);
-        //       return;
-        //     }
+            // Convert string input into Attendees
+            final preacher = Attendees(
+                id: controller.selectedPreacherId.toString(),
+                name: controller.preacherController.text.trim());
+            final worshipLeader = Attendees(
+                id: controller.selectedWorshipLeaderId.value,
+                name: controller.worshipLeaderController.text.trim());
+            final songLeader = Attendees(
+                id: controller.selectedSongLeaderId.value,
+                name: controller.songLeaderController.text.trim());
 
-        //     // Construct `Member` objects (in real use, fetch from DB or map locally)
-        //     Member preacher = Member(
-        //         id: 'preacher_id', name: controller.preacherController.text);
-        //     Member worshipLeader = Member(
-        //         id: 'worship_leader_id',
-        //         name: controller.worshipLeaderController.text);
-        //     Member songLeader = Member(
-        //         id: 'song_leader_id',
-        //         name: controller.songLeaderController.text);
+            // Convert attendance IDs into Attendees (You might want to fetch their names from Firestore in a real app)
+            final List<Attendees> attendees = controller.checkedMembers.entries
+                .map((e) => Attendees(id: e.key, name: e.value))
+                .toList();
 
-        //     // Dummy attendees, ideally matched from DB using their IDs
-        //     final attendees = controller.checkedMemberIds
-        //         .map((id) => Member(id: id, name: id))
-        //         .toList();
+            // Convert visitor strings to Visitor objects
+            final List<Map<String, dynamic>> visitors =
+                controller.visitors.map((v) {
+              return Visitor(name: v).toMap();
+            }).toList();
 
-        //     // Construct FirestoreService instance and call addAttendance
-        //     final firestoreService = FirestoreService();
-        //     await firestoreService.addAttendance(
-        //       date: DateTime.now(),
-        //       amount: {
-        //         'tithe': 0.0,
-        //         'offering': 0.0
-        //       }, // you can replace this with actual data later
-        //       preacher: preacher.,
-        //       sermonTitle: controller.titleController.text,
-        //       sermonScripture: controller.scriptureController.text,
-        //       worshipLeader: worshipLeader,
-        //       songLeader: songLeader,
-        //       songs: controller.songs,
-        //       attendees: attendees,
-        //       birthdays: [], // no birthdays as per your latest instruction
-        //       visitors:
-        //           controller.visitors.map((name) => {'name': name}).toList(),
-        //     );
+            final dateText = dateController.text.trim();
 
-        //     Get.snackbar('Success', 'Attendance saved successfully!',
-        //         backgroundColor: Colors.green, colorText: Colors.white);
-        //   },
-        //   shape: const CircleBorder(),
-        //   backgroundColor: primaryColor,
-        //   child: const Icon(Icons.add),
-        // ),
+            final birthdayValidation =
+                MemberValidator.validateBirthday(dateText);
+            if (!birthdayValidation.isValid) {
+              CustomDialog.error(birthdayValidation.error!);
+              return;
+            }
+
+            final date = DateFormat('MM-dd-yyyy').parseStrict(dateText);
+
+            // Call the method that saves to Firestore
+            await firestoreService.addAttendance(
+              serviceName: serviceController.text.trim(),
+              date: date,
+              preacher: preacher,
+              sermonTitle: controller.titleController.text.trim(),
+              sermonScripture: controller.scriptureController.text.trim(),
+              worshipLeader: worshipLeader,
+              songLeader: songLeader,
+              songs: controller.songs.toList(),
+              attendees: attendees,
+              visitors: visitors,
+            );
+
+            CustomDialog.success('Service added successfully!');
+          },
+          shape: const CircleBorder(),
+          backgroundColor: primaryColor,
+          child: const Icon(Icons.save),
+        ),
       ),
     );
   }

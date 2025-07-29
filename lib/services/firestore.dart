@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'package:attendance/model/attendance_model.dart';
 import 'package:attendance/model/member_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -58,32 +59,32 @@ class FirestoreService {
   // ----------------- ATTENDANCE METHODS -----------------
 
   Future<void> addAttendance({
+    required String serviceName,
     required DateTime date,
-    required Member preacher,
+    required Attendees preacher,
     required String sermonTitle,
     required String sermonScripture,
-    required Member worshipLeader,
-    required Member songLeader,
+    required Attendees worshipLeader,
+    required Attendees songLeader,
     required List<String> songs,
-    required List<Member> attendees,
+    required List<Attendees> attendees,
     required List<Map<String, dynamic>> visitors,
   }) async {
     final docRef = attendanceRef.doc();
 
     final attendanceData = {
       'id': docRef.id,
+      'service_name': serviceName,
       'date': date.toIso8601String(),
       'sermon': {
-        'preacher': preacher.toMap(includeTimestamps: false),
+        'preacher': preacher.toMap(),
         'title': sermonTitle,
         'scripture': sermonScripture,
       },
-      'worship_leader': worshipLeader.toMap(includeTimestamps: false),
-      'song_leader': songLeader.toMap(includeTimestamps: false),
+      'worship_leader': worshipLeader.toMap(),
+      'song_leader': songLeader.toMap(),
       'songs': songs,
-      'attendance': attendees
-          .map((member) => member.toMap(includeTimestamps: false))
-          .toList(),
+      'attendance': attendees.map((member) => member.toMap()).toList(),
       'visitors': visitors,
       'createdAt': FieldValue.serverTimestamp(),
     };

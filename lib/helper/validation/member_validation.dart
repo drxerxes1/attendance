@@ -25,10 +25,10 @@ class MemberValidator {
     try {
       final birthday = DateFormat('MM-dd-yyyy').parseStrict(birthdayText);
       if (birthday.isAfter(DateTime.now())) {
-        return MemberValidatorResult(false, 'Birthday cannot be in the future');
+        return MemberValidatorResult(false, 'Date cannot be in the future');
       }
     } catch (_) {
-      return MemberValidatorResult(false, 'Invalid birthday format. Use MM-DD-YYYY');
+      return MemberValidatorResult(false, 'Invalid date format. Use MM-DD-YYYY');
     }
 
     return MemberValidatorResult(true);

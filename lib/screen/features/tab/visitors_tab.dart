@@ -69,6 +69,7 @@ class VisitorTab extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextField(
+                    textCapitalization: TextCapitalization.words,
                     controller: visitorController,
                     decoration: InputDecoration(
                       hintText: 'Add new visitor here',

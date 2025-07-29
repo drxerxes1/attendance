@@ -39,9 +39,9 @@ class AttendanceTab extends StatelessWidget {
                   SizedBox(height: mq.width * 0.05),
                   ...members.map((member) {
                     final isChecked =
-                        controller.checkedMemberIds.contains(member.id);
+                        controller.checkedMembers.containsKey(member.id);
                     return GestureDetector(
-                      onTap: () => controller.toggleMember(member.id),
+                      onTap: () => controller.toggleMember(member.id, member.name),
                       child: Container(
                         height: mq.width * 0.1,
                         margin: const EdgeInsets.only(bottom: 8),
@@ -65,7 +65,7 @@ class AttendanceTab extends StatelessWidget {
                               activeColor: primaryColor,
                               shape: const CircleBorder(),
                               onChanged: (bool? value) {
-                                controller.setMember(member.id, value ?? false);
+                                controller.setMember(member.id, member.name, value ?? false);
                               },
                             ),
                           ],
