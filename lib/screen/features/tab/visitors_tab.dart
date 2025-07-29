@@ -1,48 +1,16 @@
 import 'package:attendance/helper/widgets/custom_dialog.dart';
+import 'package:attendance/screen/controllers/service_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class VisitorTab extends StatefulWidget {
+class VisitorTab extends StatelessWidget {
   const VisitorTab({super.key});
 
   @override
-  State<VisitorTab> createState() => _VisitorTabState();
-}
-
-class _VisitorTabState extends State<VisitorTab>
-    with AutomaticKeepAliveClientMixin {
-  final List<String> visitors = [];
-  final TextEditingController visitorController = TextEditingController();
-
-  void _addVisitor() {
-    final text = visitorController.text.trim();
-    if (text.isNotEmpty) {
-      final isDuplicate = visitors
-          .any((visitor) => visitor.toLowerCase() == text.toLowerCase());
-      if (isDuplicate) {
-        CustomDialog.error('Visitor already exists');
-        return;
-      }
-
-      setState(() {
-        visitors.add(text);
-        visitorController.clear();
-      });
-    }
-  }
-
-  void _removeVisitor(int index) {
-    setState(() {
-      visitors.removeAt(index);
-    });
-  }
-
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
   Widget build(BuildContext context) {
-    super.build(context);
     final mq = MediaQuery.of(context).size;
+    final controller = Get.find<ServiceController>();
+    final TextEditingController visitorController = TextEditingController();
 
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: mq.width * 0.07),
@@ -53,37 +21,42 @@ class _VisitorTabState extends State<VisitorTab>
           const Text('Visitors',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
           SizedBox(height: mq.width * 0.05),
-          // List of visitors
-          ...visitors.asMap().entries.map((entry) {
-            int index = entry.key;
-            String visitor = entry.value;
-            return Container(
-              height: mq.width * 0.1,
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade800),
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      visitor,
-                      style: TextStyle(
-                          fontSize: mq.width * 0.035, color: Colors.white),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red, size: 20),
-                    onPressed: () => _removeVisitor(index),
-                  ),
-                ],
-              ),
-            );
-          }),
 
-          // TextField to add a new visitor
+          // Visitor list
+          Obx(() => Column(
+                children: controller.visitors.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  String visitor = entry.value;
+                  return Container(
+                    height: mq.width * 0.1,
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade800),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            visitor,
+                            style: TextStyle(
+                                fontSize: mq.width * 0.035,
+                                color: Colors.white),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete,
+                              color: Colors.red, size: 20),
+                          onPressed: () => controller.removeVisitor(index),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              )),
+
+          // TextField to add visitor
           Container(
             height: mq.width * 0.1,
             margin: const EdgeInsets.only(bottom: 8),
@@ -117,9 +90,19 @@ class _VisitorTabState extends State<VisitorTab>
             ),
           ),
 
-          // Add Visitor Button
+          // Add visitor button
           GestureDetector(
-            onTap: _addVisitor,
+            onTap: () {
+              final input = visitorController.text.trim();
+              if (input.isEmpty) return;
+
+              if (controller.isDuplicateVisitor(input)) {
+                CustomDialog.error('Visitor already exists');
+              } else {
+                controller.addVisitor(input);
+                visitorController.clear();
+              }
+            },
             child: Container(
               height: mq.width * 0.1,
               width: double.infinity,

@@ -1,9 +1,11 @@
 import 'package:attendance/helper/widgets/custom_app_bar.dart';
 import 'package:attendance/helper/widgets/custom_text_field.dart';
+import 'package:attendance/screen/controllers/service_controller.dart';
 import 'package:attendance/screen/features/tab/attendance_tab.dart';
 import 'package:attendance/screen/features/tab/information_tab.dart';
 import 'package:attendance/screen/features/tab/visitors_tab.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ServiceScreen extends StatefulWidget {
   const ServiceScreen({super.key});
@@ -21,6 +23,7 @@ class _ServiceScreenState extends State<ServiceScreen>
   @override
   void initState() {
     super.initState();
+    Get.put(ServiceController());
     _tabController = TabController(length: 3, vsync: this);
   }
 
