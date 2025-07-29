@@ -26,12 +26,14 @@ class _ServiceScreenState extends State<ServiceScreen>
   final FirestoreService firestoreService = FirestoreService();
 
   late TabController _tabController;
-  final controller = Get.find<ServiceController>();
+  late ServiceController controller;
 
   @override
   void initState() {
     super.initState();
     Get.put(ServiceController());
+    controller = Get.find<ServiceController>();
+
     _tabController = TabController(length: 3, vsync: this);
   }
 

@@ -158,7 +158,7 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
                 final member = members[index];
 
                 final birthday =
-                    DateFormat('MM-dd-yyyy').format(member.birthday);
+                    DateFormat('MMMM d, y').format(member.birthday);
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
