@@ -8,7 +8,7 @@ import 'package:attendance/helper/widgets/custom_datepicker.dart';
 import 'package:attendance/helper/widgets/custom_dialog.dart';
 import 'package:attendance/helper/widgets/custom_slidable_action.dart';
 import 'package:attendance/helper/widgets/custom_text_field.dart';
-import 'package:attendance/model/member.dart';
+import 'package:attendance/model/member_model.dart';
 import 'package:attendance/services/firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';

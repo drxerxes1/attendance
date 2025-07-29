@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_print
 
-import 'package:attendance/model/member.dart';
+import 'package:attendance/model/member_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreService {
@@ -59,7 +59,6 @@ class FirestoreService {
 
   Future<void> addAttendance({
     required DateTime date,
-    required Map<String, double> amount,
     required Member preacher,
     required String sermonTitle,
     required String sermonScripture,
@@ -67,7 +66,6 @@ class FirestoreService {
     required Member songLeader,
     required List<String> songs,
     required List<Member> attendees,
-    required List<Member> birthdays,
     required List<Map<String, dynamic>> visitors,
   }) async {
     final docRef = attendanceRef.doc();
@@ -75,43 +73,18 @@ class FirestoreService {
     final attendanceData = {
       'id': docRef.id,
       'date': date.toIso8601String(),
-      'amount': amount,
       'sermon': {
-        'preacher': {
-          'id': preacher.id,
-          'name': preacher.name,
-        },
+        'preacher': preacher.toMap(includeTimestamps: false),
         'title': sermonTitle,
         'scripture': sermonScripture,
       },
-      'worship leader': {
-        'id': worshipLeader.id,
-        'name': worshipLeader.name,
-      },
-      'song leader': {
-        'id': songLeader.id,
-        'name': songLeader.name,
-      },
+      'worship_leader': worshipLeader.toMap(includeTimestamps: false),
+      'song_leader': songLeader.toMap(includeTimestamps: false),
       'songs': songs,
       'attendance': attendees
-          .map((member) => {
-                'id': member.id,
-                'name': member.name,
-              })
+          .map((member) => member.toMap(includeTimestamps: false))
           .toList(),
-      'birthdays': birthdays
-          .map((member) => {
-                'id': member.id,
-                'name': member.name,
-                'birthday': member.birthday.toIso8601String(),
-              })
-          .toList(),
-      'visitors': visitors.map((visitor) {
-        return {
-          'name': visitor['name'],
-          'birthday': (visitor['birthday'] as DateTime).toIso8601String(),
-        };
-      }).toList(),
+      'visitors': visitors,
       'createdAt': FieldValue.serverTimestamp(),
     };
 

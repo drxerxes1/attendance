@@ -103,6 +103,65 @@ class _ServiceScreenState extends State<ServiceScreen>
             ],
           ),
         ),
+        // floatingActionButton: FloatingActionButton(
+        //   onPressed: () async {
+        //     final controller = Get.find<ServiceController>();
+
+        //     // Validate basic required fields
+        //     if (controller.preacherController.text.isEmpty ||
+        //         controller.titleController.text.isEmpty ||
+        //         controller.scriptureController.text.isEmpty ||
+        //         controller.worshipLeaderController.text.isEmpty ||
+        //         controller.songLeaderController.text.isEmpty ||
+        //         controller.checkedMemberIds.isEmpty) {
+        //       Get.snackbar(
+        //           'Error', 'Please fill all required fields and attendance',
+        //           backgroundColor: Colors.red, colorText: Colors.white);
+        //       return;
+        //     }
+
+        //     // Construct `Member` objects (in real use, fetch from DB or map locally)
+        //     Member preacher = Member(
+        //         id: 'preacher_id', name: controller.preacherController.text);
+        //     Member worshipLeader = Member(
+        //         id: 'worship_leader_id',
+        //         name: controller.worshipLeaderController.text);
+        //     Member songLeader = Member(
+        //         id: 'song_leader_id',
+        //         name: controller.songLeaderController.text);
+
+        //     // Dummy attendees, ideally matched from DB using their IDs
+        //     final attendees = controller.checkedMemberIds
+        //         .map((id) => Member(id: id, name: id))
+        //         .toList();
+
+        //     // Construct FirestoreService instance and call addAttendance
+        //     final firestoreService = FirestoreService();
+        //     await firestoreService.addAttendance(
+        //       date: DateTime.now(),
+        //       amount: {
+        //         'tithe': 0.0,
+        //         'offering': 0.0
+        //       }, // you can replace this with actual data later
+        //       preacher: preacher.,
+        //       sermonTitle: controller.titleController.text,
+        //       sermonScripture: controller.scriptureController.text,
+        //       worshipLeader: worshipLeader,
+        //       songLeader: songLeader,
+        //       songs: controller.songs,
+        //       attendees: attendees,
+        //       birthdays: [], // no birthdays as per your latest instruction
+        //       visitors:
+        //           controller.visitors.map((name) => {'name': name}).toList(),
+        //     );
+
+        //     Get.snackbar('Success', 'Attendance saved successfully!',
+        //         backgroundColor: Colors.green, colorText: Colors.white);
+        //   },
+        //   shape: const CircleBorder(),
+        //   backgroundColor: primaryColor,
+        //   child: const Icon(Icons.add),
+        // ),
       ),
     );
   }

@@ -1,5 +1,5 @@
 import 'package:attendance/helper/global.dart';
-import 'package:attendance/model/member.dart';
+import 'package:attendance/model/member_model.dart';
 import 'package:attendance/screen/controllers/service_controller.dart';
 import 'package:attendance/services/firestore.dart';
 import 'package:flutter/material.dart';
