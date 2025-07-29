@@ -2,26 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ServiceController extends GetxController {
-  // Attendance
-  final checkedMembers = <String, String>{}.obs;
-
-  void toggleMember(String id, String name) {
-    if (checkedMembers.containsKey(id)) {
-      checkedMembers.remove(id);
-    } else {
-      checkedMembers[id] = name;
-    }
-  }
-
-  void setMember(String id, String name, bool checked) {
-    if (checked) {
-      checkedMembers[id] = name;
-    } else {
-      checkedMembers.remove(id);
-    }
-  }
-
   // Information Tab
+  final serviceNameController = TextEditingController();
+  final dateController = TextEditingController();
   final selectedPreacherId = RxString('NonMember');
   final selectedSongLeaderId = RxString('NonMember');
   final selectedWorshipLeaderId = RxString('NonMember');
@@ -62,6 +45,25 @@ class ServiceController extends GetxController {
     worshipLeaderController.dispose();
     songLeaderController.dispose();
     super.onClose();
+  }
+
+  // Attendance
+  final checkedMembers = <String, String>{}.obs;
+
+  void toggleMember(String id, String name) {
+    if (checkedMembers.containsKey(id)) {
+      checkedMembers.remove(id);
+    } else {
+      checkedMembers[id] = name;
+    }
+  }
+
+  void setMember(String id, String name, bool checked) {
+    if (checked) {
+      checkedMembers[id] = name;
+    } else {
+      checkedMembers.remove(id);
+    }
   }
 
   // Visitors

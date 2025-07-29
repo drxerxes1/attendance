@@ -74,7 +74,7 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
               }
 
               final birthdayValidation =
-                  MemberValidator.validateBirthday(birthdayText);
+                  MemberValidator.validateDate(birthdayText);
               if (!birthdayValidation.isValid) {
                 showError(birthdayValidation.error!);
                 return;

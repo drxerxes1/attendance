@@ -17,9 +17,9 @@ class MemberValidator {
     return MemberValidatorResult(true);
   }
 
-  static MemberValidatorResult validateBirthday(String birthdayText) {
+  static MemberValidatorResult validateDate(String birthdayText) {
     if (birthdayText.trim().isEmpty) {
-      return MemberValidatorResult(false, 'Birthday is required');
+      return MemberValidatorResult(false, 'Date is required');
     }
 
     try {

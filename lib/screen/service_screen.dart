@@ -1,5 +1,5 @@
 import 'package:attendance/helper/global.dart';
-import 'package:attendance/helper/validation/member_validation.dart';
+import 'package:attendance/helper/validation/attendance_validator.dart';
 import 'package:attendance/helper/widgets/custom_app_bar.dart';
 import 'package:attendance/helper/widgets/custom_datepicker.dart';
 import 'package:attendance/helper/widgets/custom_dialog.dart';
@@ -26,8 +26,7 @@ class _ServiceScreenState extends State<ServiceScreen>
   final FirestoreService firestoreService = FirestoreService();
 
   late TabController _tabController;
-  final TextEditingController serviceController = TextEditingController();
-  final TextEditingController dateController = TextEditingController();
+  final controller = Get.find<ServiceController>();
 
   @override
   void initState() {
@@ -39,7 +38,6 @@ class _ServiceScreenState extends State<ServiceScreen>
   @override
   void dispose() {
     _tabController.dispose();
-    serviceController.dispose();
     super.dispose();
   }
 
@@ -60,13 +58,13 @@ class _ServiceScreenState extends State<ServiceScreen>
                 child: Column(
                   children: [
                     CustomTextField(
-                      controller: serviceController,
+                      controller: controller.serviceNameController,
                       hintText: 'Service',
                       label: 'Service',
                     ),
                     SizedBox(height: mq.width * 0.03),
                     CustomDatePickerTextField(
-                      controller: dateController,
+                      controller: controller.dateController,
                       label: 'Date',
                       hintText: 'MM-DD-YYYY',
                     ),
@@ -114,8 +112,6 @@ class _ServiceScreenState extends State<ServiceScreen>
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            final controller = Get.find<ServiceController>();
-
             // Convert string input into Attendees
             final preacher = Attendees(
                 id: controller.selectedPreacherId.toString(),
@@ -138,12 +134,48 @@ class _ServiceScreenState extends State<ServiceScreen>
               return Visitor(name: v).toMap();
             }).toList();
 
-            final dateText = dateController.text.trim();
+            // Validations
 
-            final birthdayValidation =
-                MemberValidator.validateBirthday(dateText);
-            if (!birthdayValidation.isValid) {
-              CustomDialog.error(birthdayValidation.error!);
+            final validations = [
+              AttendanceValidator.validateTextfield(
+                  controller.serviceNameController.text.trim(), "Service Name"),
+              AttendanceValidator.validateTextfield(
+                  controller.preacherController.text.trim(), "Preacher"),
+              AttendanceValidator.validateTextfield(
+                  controller.titleController.text.trim(), "Sermon Title"),
+              AttendanceValidator.validateTextfield(
+                  controller.scriptureController.text.trim(),
+                  "Sermon Scripture"),
+              AttendanceValidator.validateTextfield(
+                  controller.worshipLeaderController.text.trim(),
+                  "Worship Leader"),
+              AttendanceValidator.validateTextfield(
+                  controller.songLeaderController.text.trim(), "Song Leader"),
+            ];
+
+            for (final result in validations) {
+              if (!result.isValid) {
+                CustomDialog.error(result.error!);
+                return;
+              }
+            }
+
+            if (controller.songs.isEmpty) {
+              CustomDialog.error("At least one song must be added.");
+              return;
+            }
+
+            final attendeeValidation =
+                AttendanceValidator.validateAttendees(attendees);
+            if (!attendeeValidation.isValid) {
+              CustomDialog.error(attendeeValidation.error!);
+              return;
+            }
+
+            final dateText = controller.dateController.text.trim();
+            final dateValidation = AttendanceValidator.validateDate(dateText);
+            if (!dateValidation.isValid) {
+              CustomDialog.error(dateValidation.error!);
               return;
             }
 
@@ -151,7 +183,7 @@ class _ServiceScreenState extends State<ServiceScreen>
 
             // Call the method that saves to Firestore
             await firestoreService.addAttendance(
-              serviceName: serviceController.text.trim(),
+              serviceName: controller.serviceNameController.text.trim(),
               date: date,
               preacher: preacher,
               sermonTitle: controller.titleController.text.trim(),
