@@ -6,6 +6,7 @@ import 'package:attendance/helper/widgets/custom_dialog.dart';
 import 'package:attendance/helper/widgets/custom_text_field.dart';
 import 'package:attendance/model/attendance_model.dart';
 import 'package:attendance/screen/controllers/service_controller.dart';
+import 'package:attendance/screen/home_screen.dart';
 import 'package:attendance/screen/tabs/attendance_tab.dart';
 import 'package:attendance/screen/tabs/information_tab.dart';
 import 'package:attendance/screen/tabs/visitors_tab.dart';
@@ -15,7 +16,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class ServiceScreen extends StatefulWidget {
-  const ServiceScreen({super.key});
+  final Map<String, dynamic>? attendanceData;
+  const ServiceScreen({super.key, this.attendanceData});
 
   @override
   State<ServiceScreen> createState() => _ServiceScreenState();
@@ -34,6 +36,52 @@ class _ServiceScreenState extends State<ServiceScreen>
     Get.put(ServiceController());
     controller = Get.find<ServiceController>();
 
+    final data = widget.attendanceData;
+    if (data != null) {
+      controller.serviceNameController.text = data['service_name'] ?? '';
+      controller.dateController.text = DateFormat('MM-dd-yyyy')
+          .format(DateTime.tryParse(data['date']) ?? DateTime.now());
+      controller.preacherController.text =
+          data['sermon']['preacher']['name'] ?? '';
+      controller.titleController.text = data['sermon']['title'] ?? '';
+      controller.scriptureController.text = data['sermon']['scripture'] ?? '';
+      controller.worshipLeaderController.text =
+          data['worship_leader']['name'] ?? '';
+      controller.songLeaderController.text = data['song_leader']['name'] ?? '';
+
+      // IDs (optional - handle if you store them in Firestore)
+      controller.selectedPreacherId.value = data['preacher_id'] ?? 'NonMember';
+      controller.selectedWorshipLeaderId.value =
+          data['worship_leader_id'] ?? 'NonMember';
+      controller.selectedSongLeaderId.value =
+          data['song_leader_id'] ?? 'NonMember';
+
+      // Songs
+      final songList = data['songs'];
+      if (songList is List) {
+        controller.songs.value = List<String>.from(songList);
+      }
+
+      // Attendees
+      final attendees = data['attendance'];
+      if (attendees is List) {
+        for (var att in attendees) {
+          if (att is Map<String, dynamic>) {
+            final id = att['id'] ?? '';
+            final name = att['name'] ?? '';
+            controller.setMember(id, name, true);
+          }
+        }
+      }
+
+      // Visitors
+      final visitors = data['visitors'];
+      if (visitors is List) {
+        controller.visitors.value =
+            visitors.map((v) => v['name'].toString()).toList();
+      }
+    }
+
     _tabController = TabController(length: 3, vsync: this);
   }
 
@@ -49,7 +97,9 @@ class _ServiceScreenState extends State<ServiceScreen>
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        appBar: const CustomAppBar(title: 'Add Service'),
+        appBar: CustomAppBar(
+            title:
+                widget.attendanceData == null ? 'Add Service' : 'Edit Service'),
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: Column(
@@ -183,21 +233,44 @@ class _ServiceScreenState extends State<ServiceScreen>
 
             final date = DateFormat('MM-dd-yyyy').parseStrict(dateText);
 
-            // Call the method that saves to Firestore
-            await firestoreService.addAttendance(
-              serviceName: controller.serviceNameController.text.trim(),
-              date: date,
-              preacher: preacher,
-              sermonTitle: controller.titleController.text.trim(),
-              sermonScripture: controller.scriptureController.text.trim(),
-              worshipLeader: worshipLeader,
-              songLeader: songLeader,
-              songs: controller.songs.toList(),
-              attendees: attendees,
-              visitors: visitors,
-            );
+            if (widget.attendanceData == null) {
+              // ADD
+              await firestoreService.addAttendance(
+                serviceName: controller.serviceNameController.text.trim(),
+                date: date,
+                preacher: preacher,
+                sermonTitle: controller.titleController.text.trim(),
+                sermonScripture: controller.scriptureController.text.trim(),
+                worshipLeader: worshipLeader,
+                songLeader: songLeader,
+                songs: controller.songs.toList(),
+                attendees: attendees,
+                visitors: visitors,
+              );
 
-            CustomDialog.success('Service added successfully!');
+              CustomDialog.success('Service added successfully!');
+              Get.offAll(() => const HomeScreen());
+            } else {
+              // EDIT
+              final docId = widget
+                  .attendanceData!['id']; // assuming you added it during fetch
+              await firestoreService.updateAttendance(
+                docId: docId,
+                serviceName: controller.serviceNameController.text.trim(),
+                date: date,
+                preacher: preacher,
+                sermonTitle: controller.titleController.text.trim(),
+                sermonScripture: controller.scriptureController.text.trim(),
+                worshipLeader: worshipLeader,
+                songLeader: songLeader,
+                songs: controller.songs.toList(),
+                attendees: attendees,
+                visitors: visitors,
+              );
+
+              CustomDialog.success('Service updated successfully!');
+              Get.offAll(() => const HomeScreen());
+            }
           },
           shape: const CircleBorder(),
           backgroundColor: primaryColor,

@@ -132,7 +132,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(8),
-                          onTap: () {},
+                          onTap: () {
+                            Get.to(() => ServiceScreen(attendanceData: item));
+                          },
                           child: ListTile(
                             title: Text(
                               item['service_name'] ?? '',

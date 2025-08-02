@@ -96,9 +96,36 @@ class FirestoreService {
     return await attendanceRef.doc(id).get();
   }
 
-  Future<void> updateAttendance(String id, Map<String, dynamic> data) async {
-    data['updatedAt'] = FieldValue.serverTimestamp();
-    await attendanceRef.doc(id).update(data);
+  Future<void> updateAttendance({
+    required String docId,
+    required String serviceName,
+    required DateTime date,
+    required Attendees preacher,
+    required String sermonTitle,
+    required String sermonScripture,
+    required Attendees worshipLeader,
+    required Attendees songLeader,
+    required List<String> songs,
+    required List<Attendees> attendees,
+    required List<Map<String, dynamic>> visitors,
+  }) async {
+    await attendanceRef.doc(docId).update({
+      'service_name': serviceName,
+      'date': date.toIso8601String(),
+      'sermon': {
+        'preacher': preacher.toMap(),
+        'title': sermonTitle,
+        'scripture': sermonScripture,
+      },
+      'preacher_id': preacher.id,
+      'worship_leader': worshipLeader.toMap(),
+      'worship_leader_id': worshipLeader.id,
+      'song_leader': songLeader.toMap(),
+      'song_leader_id': songLeader.id,
+      'songs': songs,
+      'attendance': attendees.map((e) => e.toMap()).toList(),
+      'visitors': visitors,
+    });
   }
 
   Future<void> deleteAttendance(String id) async {
