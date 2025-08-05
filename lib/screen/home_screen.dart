@@ -28,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, dynamic>> allAttendances = [];
   List<Map<String, dynamic>> filteredAttendances = [];
+  final FocusNode _searchFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -36,6 +37,18 @@ class _HomeScreenState extends State<HomeScreen> {
     Pref.showOnboarding = false;
 
     _searchController.addListener(_filterSearchResults);
+
+    // Prevent auto focus
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _searchFocusNode.unfocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
   }
 
   void _filterSearchResults() {
@@ -70,6 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(
                 height: 40,
                 child: TextField(
+                  focusNode: _searchFocusNode,
                   controller: _searchController,
                   decoration: InputDecoration(
                     hintText: 'Search Date, Services...',
@@ -213,11 +227,5 @@ class _HomeScreenState extends State<HomeScreen> {
         child: const Icon(Icons.add),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
   }
 }

@@ -33,9 +33,26 @@ class _ServiceScreenState extends State<ServiceScreen>
   @override
   void initState() {
     super.initState();
+
+    _tabController = TabController(length: 3, vsync: this);
+
+    _tabController.addListener(() {
+      if (_tabController.index == 1) {
+        controller.isAttendanceTabLoaded.value = true;
+      } else if (_tabController.index == 2) {
+        controller.isVisitorTabLoaded.value = true;
+      }
+    });
+
     Get.put(ServiceController());
     controller = Get.find<ServiceController>();
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _populateAttendanceData();
+    });
+  }
+
+  void _populateAttendanceData() {
     final data = widget.attendanceData;
     if (data != null) {
       controller.serviceNameController.text = data['service_name'] ?? '';
@@ -65,13 +82,19 @@ class _ServiceScreenState extends State<ServiceScreen>
       // Attendees
       final attendees = data['attendance'];
       if (attendees is List) {
+        final Map<String, String> bulkChecked = {};
         for (var att in attendees) {
-          if (att is Map<String, dynamic>) {
-            final id = att['id'] ?? '';
-            final name = att['name'] ?? '';
-            controller.setMember(id, name, true);
+          if (att is Map<String, dynamic> &&
+              att.containsKey('id') &&
+              att.containsKey('name')) {
+            final id = att['id']?.toString();
+            final name = att['name']?.toString();
+            if (id != null && name != null) {
+              bulkChecked[id] = name;
+            }
           }
         }
+        controller.setCheckedMembers(bulkChecked);
       }
 
       // Visitors
@@ -81,8 +104,6 @@ class _ServiceScreenState extends State<ServiceScreen>
             visitors.map((v) => v['name'].toString()).toList();
       }
     }
-
-    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -152,10 +173,15 @@ class _ServiceScreenState extends State<ServiceScreen>
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
-                  children: const [
-                    InformationTab(),
-                    AttendanceTab(),
-                    VisitorTab(),
+                  physics: const NeverScrollableScrollPhysics(), // optional
+                  children: [
+                    const InformationTab(),
+                    Obx(() => controller.isAttendanceTabLoaded.value
+                        ? const AttendanceTab()
+                        : Container()),
+                    Obx(() => controller.isVisitorTabLoaded.value
+                        ? const VisitorTab()
+                        : Container()),
                   ],
                 ),
               ),

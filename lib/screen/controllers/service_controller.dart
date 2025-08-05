@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ServiceController extends GetxController {
+  // Tab controller
+  RxBool isAttendanceTabLoaded = false.obs;
+  RxBool isVisitorTabLoaded = false.obs;
+
   // Information Tab
   final serviceNameController = TextEditingController();
   final dateController = TextEditingController();
@@ -64,6 +68,11 @@ class ServiceController extends GetxController {
     } else {
       checkedMembers.remove(id);
     }
+  }
+
+  void setCheckedMembers(Map<String, String> members) {
+    checkedMembers.clear();
+    checkedMembers.addAll(members);
   }
 
   // Visitors
