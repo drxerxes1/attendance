@@ -1,10 +1,16 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:attendance/helper/global.dart';
 import 'package:attendance/helper/pref.dart';
+import 'package:attendance/helper/widgets/custom_alert_dialog.dart';
 import 'package:attendance/helper/widgets/custom_app_bar.dart';
+import 'package:attendance/helper/widgets/custom_dialog.dart';
 import 'package:attendance/helper/widgets/custom_sidebar.dart';
+import 'package:attendance/helper/widgets/custom_slidable_action.dart';
 import 'package:attendance/services/firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -123,27 +129,69 @@ class _HomeScreenState extends State<HomeScreen> {
                             DateTime.now(),
                       );
 
-                      return Container(
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          border: Border.all(color: Colors.white24),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(8),
-                          onTap: () {
-                            Get.to(() => ServiceScreen(attendanceData: item));
-                          },
-                          child: ListTile(
-                            title: Text(
-                              item['service_name'] ?? '',
-                              style: const TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Slidable(
+                          key: ValueKey(item['id']),
+                          endActionPane: ActionPane(
+                            // swipe left to reveal delete
+                            motion: const DrawerMotion(),
+                            extentRatio: 0.25,
+                            children: [
+                              CustomSlidableActionWidget(
+                                onPressed: (_) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (dialogContext) =>
+                                        CustomAlertDialog(
+                                      title: "Delete Attendance",
+                                      message:
+                                          "Are you sure you want to delete this attendance?",
+                                      type: AlertType.error,
+                                      onConfirm: () {
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          firestoreService
+                                              .deleteAttendance(item['id']);
+                                          CustomDialog.success(
+                                              'Attendance deleted successfully');
+                                        });
+                                      },
+                                    ),
+                                  );
+                                },
+                                backgroundColor: Colors.red.withOpacity(0.15),
+                                foregroundColor: Colors.red,
+                                icon: Icons.delete,
+                                label: 'Delete',
+                              ),
+                            ],
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              border: Border.all(color: Colors.white24),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            subtitle: Text(
-                              date,
-                              style: const TextStyle(color: Colors.white70),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(8),
+                              onTap: () {
+                                Get.to(
+                                    () => ServiceScreen(attendanceData: item));
+                              },
+                              child: ListTile(
+                                title: Text(
+                                  item['service_name'] ?? '',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  date,
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                              ),
                             ),
                           ),
                         ),
