@@ -29,6 +29,35 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController birthdayController = TextEditingController();
 
+  // search
+  final TextEditingController _searchController = TextEditingController();
+  List<Member> allMembers = [];
+  List<Member> filteredMembers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_filterSearchResults);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterSearchResults() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      filteredMembers = allMembers.where((member) {
+        final name = member.name.toLowerCase();
+        final birthday =
+            DateFormat('MMMM d, y').format(member.birthday).toLowerCase();
+        return name.contains(query) || birthday.contains(query);
+      }).toList();
+    });
+  }
+
   // show member modal
   void showMemberModal({Member? member}) {
     final isEdit = member != null;
@@ -137,106 +166,155 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
         backgroundColor: primaryColor,
         child: const Icon(Icons.add),
       ),
-      body: StreamBuilder<List<Member>>(
-        stream: firestoreService.getAllMembers(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No members found.'));
-          }
-
-          final members = snapshot.data!;
-
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: ListView.builder(
-              itemCount: members.length,
-              itemBuilder: (context, index) {
-                final member = members[index];
-
-                final birthday =
-                    DateFormat('MMMM d, y').format(member.birthday);
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Slidable(
-                    key: ValueKey(member.id),
-                    startActionPane: ActionPane(
-                      motion: const DrawerMotion(),
-                      extentRatio: 0.25,
-                      children: [
-                        CustomSlidableActionWidget(
-                          onPressed: (_) {
-                            showDialog(
-                              context: context,
-                              builder: (dialogContext) => CustomAlertDialog(
-                                title: "Delete Member",
-                                message:
-                                    "Are you sure you want to delete this member?",
-                                type: AlertType.error,
-                                onConfirm: () {
-                                  WidgetsBinding.instance
-                                      .addPostFrameCallback((_) {
-                                    firestoreService.deleteMember(member.id);
-                                    CustomDialog.success(
-                                      'Member deleted successfully',
-                                    );
-                                  });
-                                },
-                              ),
-                            );
-                          },
-                          backgroundColor: Colors.red.withOpacity(0.15),
-                          foregroundColor: Colors.red,
-                          icon: Icons.delete,
-                          label: 'Delete',
-                        ),
-                      ],
-                    ),
-                    endActionPane: ActionPane(
-                      motion: const DrawerMotion(),
-                      extentRatio: 0.25,
-                      children: [
-                        CustomSlidableActionWidget(
-                          onPressed: (context) {
-                            showMemberModal(member: member);
-                          },
-                          backgroundColor: Colors.blue.withOpacity(0.15),
-                          foregroundColor: Colors.blue,
-                          icon: Icons.edit,
-                          label: 'Edit',
-                        ),
-                      ],
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        border: Border.all(color: Colors.white24),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          member.name,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        subtitle: Text(
-                          'Birthday: $birthday',
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                      ),
-                    ),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Column(
+          children: [
+            // Search Bar
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search by name or birthday...',
+                  hintStyle: const TextStyle(color: Colors.white54),
+                  suffixIcon: const Icon(Icons.search),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Colors.white24),
                   ),
-                );
-              },
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: primaryColor),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                ),
+              ),
             ),
-          );
-        },
+
+            // Members List
+            Expanded(
+              child: StreamBuilder<List<Member>>(
+                stream: firestoreService.getAllMembers(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text('No members found.'));
+                  }
+
+                  final allMembers = snapshot.data!;
+                  final query = _searchController.text.toLowerCase();
+
+                  final members = allMembers.where((member) {
+                    final name = member.name.toLowerCase();
+                    final birthday = DateFormat('MMMM d, y')
+                        .format(member.birthday)
+                        .toLowerCase();
+                    return name.contains(query) || birthday.contains(query);
+                  }).toList();
+
+                  if (members.isEmpty) {
+                    return const Center(
+                        child: Text('No results match your search.'));
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: ListView.builder(
+                      itemCount: members.length,
+                      itemBuilder: (context, index) {
+                        final member = members[index];
+                        final birthday =
+                            DateFormat('MMMM d, y').format(member.birthday);
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Slidable(
+                            key: ValueKey(member.id),
+                            startActionPane: ActionPane(
+                              motion: const DrawerMotion(),
+                              extentRatio: 0.25,
+                              children: [
+                                CustomSlidableActionWidget(
+                                  onPressed: (_) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (dialogContext) =>
+                                          CustomAlertDialog(
+                                        title: "Delete Member",
+                                        message:
+                                            "Are you sure you want to delete this member?",
+                                        type: AlertType.error,
+                                        onConfirm: () {
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((_) {
+                                            firestoreService
+                                                .deleteMember(member.id);
+                                            CustomDialog.success(
+                                              'Member deleted successfully',
+                                            );
+                                          });
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  backgroundColor: Colors.red.withOpacity(0.15),
+                                  foregroundColor: Colors.red,
+                                  icon: Icons.delete,
+                                  label: 'Delete',
+                                ),
+                              ],
+                            ),
+                            endActionPane: ActionPane(
+                              motion: const DrawerMotion(),
+                              extentRatio: 0.25,
+                              children: [
+                                CustomSlidableActionWidget(
+                                  onPressed: (context) {
+                                    showMemberModal(member: member);
+                                  },
+                                  backgroundColor:
+                                      Colors.blue.withOpacity(0.15),
+                                  foregroundColor: Colors.blue,
+                                  icon: Icons.edit,
+                                  label: 'Edit',
+                                ),
+                              ],
+                            ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                border: Border.all(color: Colors.white24),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: ListTile(
+                                title: Text(
+                                  member.name,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Birthday: $birthday',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
