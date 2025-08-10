@@ -31,11 +31,14 @@ class _ServiceScreenState extends State<ServiceScreen>
   late ServiceController controller;
 
   @override
+  @override
   void initState() {
     super.initState();
 
-    _tabController = TabController(length: 3, vsync: this);
+    Get.put(ServiceController());
+    controller = Get.find<ServiceController>();
 
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       if (_tabController.index == 1) {
         controller.isAttendanceTabLoaded.value = true;
@@ -44,12 +47,7 @@ class _ServiceScreenState extends State<ServiceScreen>
       }
     });
 
-    Get.put(ServiceController());
-    controller = Get.find<ServiceController>();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _populateAttendanceData();
-    });
+    _populateAttendanceData(); // ⬅️ Move it here, not post-frame
   }
 
   void _populateAttendanceData() {
