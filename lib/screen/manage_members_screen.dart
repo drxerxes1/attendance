@@ -217,6 +217,8 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
                     return name.contains(query) || birthday.contains(query);
                   }).toList();
 
+                  members.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+
                   if (members.isEmpty) {
                     return const Center(
                         child: Text('No results match your search.'));
